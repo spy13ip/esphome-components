@@ -12,13 +12,18 @@ namespace stair_lighting {
 
 class StairLightingEffect {
  public:
-  virtual void init(const vector<StairLightingStep *> &steps) { steps_ = steps; }
+  virtual void init(const vector<StairLightingStep *> &steps, float *brightness) {
+    steps_ = steps;
+    brightness_ = brightness;
+  }
+
   virtual void start();
   virtual void stop();
   virtual void apply();
 
  protected:
   vector<StairLightingStep *> steps_;
+  float *brightness_;
 };
 
 class RainbowStairLightingEffect : public StairLightingEffect {
@@ -32,7 +37,7 @@ class RainbowStairLightingEffect : public StairLightingEffect {
 
   void apply() override {
     light::ESPHSVColor hsv;
-    hsv.value = 255;
+    hsv.value = 255 * *brightness_;
     hsv.saturation = 240;
     uint16_t hue = (millis() * this->speed_) % 0xFFFF;
     const uint16_t add = 0xFFFF / this->width_;

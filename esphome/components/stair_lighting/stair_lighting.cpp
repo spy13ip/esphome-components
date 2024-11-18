@@ -5,7 +5,7 @@ namespace stair_lighting {
 
 void StairLightingComponent::setup() {
   auto *effect = new RainbowStairLightingEffect();
-  effect->init(steps_);
+  effect->init(steps_, &effect_brightness_);
   set_effect(effect);
 }
 
