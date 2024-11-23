@@ -30,7 +30,7 @@ StairLightingTurnOffAction = stair_lighting_ns.class_(
 
 STEP_SCHEMA = cv.Schema(
     {
-        cv.Required(CONF_ADDRESSABLE_LIGHT_ID): cv.use_id(light.AddressableLight),
+        cv.Required(CONF_ADDRESSABLE_LIGHT_ID): cv.use_id(light.AddressableLightState),
     }
 )
 
