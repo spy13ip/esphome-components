@@ -18,8 +18,7 @@ void StairLightingComponent::setup() {
     step->add_effects({effect});
   }
   for (auto *step : steps_) {
-    auto call = step->make_call();
-    call.set_effect("rainbow");
+    step->make_call().set_effect("rainbow").perform();
   }
 }
 
@@ -27,8 +26,7 @@ void StairLightingComponent::update() {}
 
 void StairLightingComponent::update_state() {
   for (auto *step : steps_) {
-    auto call = step->make_call();
-    call.set_brightness(effect_brightness_);
+    step->make_call().set_brightness(effect_brightness_).perform();
   }
 }
 
