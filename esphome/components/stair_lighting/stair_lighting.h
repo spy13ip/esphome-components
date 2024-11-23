@@ -3,9 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
 #include "esphome/core/color.h"
-// #include "esphome/components/sensor/sensor.h"
-#include "stair_lighting_step.h"
-#include "stair_lighting_effect.h"
+#include "esphome/components/light/addressable_light.h"
 
 #include <vector>
 
@@ -16,10 +14,7 @@ namespace stair_lighting {
 
 class StairLightingComponent : public PollingComponent {
  public:
-  void add_steps(const vector<StairLightingStep *> &steps) { steps_ = steps; }
-  // void set_lower_sensor(sensor::Sensor *lower_sensor) { lower_sensor_ = lower_sensor; }
-  // void set_upper_sensor(sensor::Sensor *upper_sensor) { upper_sensor_ = upper_sensor; }
-  void set_effect(StairLightingEffect *effect) { effect_ = effect; }
+  void add_steps(const vector<light::LightState *> &steps) { steps_ = steps; }
   void set_effect_brightness(float effect_brightness) { effect_brightness_ = effect_brightness; }
   void set_night_brightness(float night_brightness) { night_brightness_ = night_brightness; }
 
@@ -27,18 +22,17 @@ class StairLightingComponent : public PollingComponent {
   void update() override;
 
  protected:
-  vector<StairLightingStep *> steps_;
-  // sensor::Sensor *upper_sensor_ = nullptr;
-  // sensor::Sensor *lower_sensor_ = nullptr;
-  StairLightingEffect *effect_ = nullptr;
+  vector<light::LightState *> steps_;
 
   float effect_brightness_ = 0;
   float night_brightness_ = 0;
+
+  void update_state();
 };
 
 template<typename... Ts> class StairLightingTurnOnAction : public Action<Ts...> {
  public:
-  StairLightingTurnOnAction(StairLightingComponent *stair_lighting) : stair_lighting_(stair_lighting) {}
+  explicit StairLightingTurnOnAction(StairLightingComponent *stair_lighting) : stair_lighting_(stair_lighting) {}
 
   TEMPLATABLE_VALUE(float, effect_brightness)
   TEMPLATABLE_VALUE(float, night_brightness)
@@ -60,7 +54,7 @@ template<typename... Ts> class StairLightingTurnOnAction : public Action<Ts...> 
 
 template<typename... Ts> class StairLightingTurnOffAction : public Action<Ts...> {
  public:
-  StairLightingTurnOffAction(StairLightingComponent *stair_lighting) : stair_lighting_(stair_lighting) {}
+  explicit StairLightingTurnOffAction(StairLightingComponent *stair_lighting) : stair_lighting_(stair_lighting) {}
 
   void play(Ts... x) override {
     stair_lighting_->set_effect_brightness(0);

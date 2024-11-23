@@ -30,22 +30,14 @@ StairLightingTurnOffAction = stair_lighting_ns.class_(
 
 STEP_SCHEMA = cv.Schema(
     {
-        cv.GenerateID(): cv.declare_id(StairLightingStep),
-        cv.Required(CONF_ADDRESSABLE_LIGHT_ID): cv.use_id(light.AddressableLightState),
-        cv.Required(CONF_START): cv.positive_int,
-        cv.Required(CONF_END): cv.positive_int,
+        cv.Required(CONF_ADDRESSABLE_LIGHT_ID): cv.use_id(light.AddressableLight),
     }
 )
 
 
 async def step_to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    wrapped_light = await cg.get_variable(config[CONF_ADDRESSABLE_LIGHT_ID])
-    cg.add(var.set_light(wrapped_light))
-    cg.add(var.set_start(config[CONF_START]))
-    cg.add(var.set_end(config[CONF_END]))
-    cg.add(var.init())
-    return var
+    light = await cg.get_variable(config[CONF_ADDRESSABLE_LIGHT_ID])
+    return light
 
 
 CONFIG_SCHEMA = cv.Schema(
