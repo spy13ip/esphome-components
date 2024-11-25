@@ -4,31 +4,25 @@
 namespace esphome {
 namespace stair_lighting {
 
-light::LightEffect *build_effect() {
-  auto *effect = new light::AddressableRainbowLightEffect("rainbow");
-  effect->set_speed(10);
-  effect->set_width(50);
-  return effect;
-}
-
-void StairLightingComponent::setup() {
-  for (auto *step : steps_) {
-    auto effect = build_effect();
-    effect->init_internal(step);
-    step->add_effects({effect});
-  }
-  for (auto *step : steps_) {
-    step->make_call().set_effect("rainbow").perform();
-  }
-}
+void StairLightingComponent::setup() {}
 
 void StairLightingComponent::update() {}
 
-void StairLightingComponent::update_state() {
+void StairLightingComponent::turn_on() {
   for (auto *step : steps_) {
-    step->make_call().set_brightness(effect_brightness_).perform();
+    step->make_call().set_effect("action").set_brightness(effect_brightness_).perform();
   }
 }
+
+void StairLightingComponent::turn_off() {
+  for (auto *step : steps_) {
+    step->make_call().set_effect("night").set_brightness(night_brightness_).perform();
+  }
+}
+
+void StairLightingComponent::turn_up() {}
+
+void StairLightingComponent::turn_down() {}
 
 }  // namespace stair_lighting
 }  // namespace esphome

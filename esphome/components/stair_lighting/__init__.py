@@ -21,11 +21,20 @@ StairLightingComponent = stair_lighting_ns.class_(
 )
 StairLightingStep = stair_lighting_ns.class_("StairLightingStep")
 StairLightingEffect = stair_lighting_ns.class_("StairlightingEffect")
+StairLightingControlAction = stair_lighting_ns.class_(
+    "StairLightingControlAction", automation.Action
+)
 StairLightingTurnOnAction = stair_lighting_ns.class_(
     "StairLightingTurnOnAction", automation.Action
 )
 StairLightingTurnOffAction = stair_lighting_ns.class_(
     "StairLightingTurnOffAction", automation.Action
+)
+StairLightingTurnUpAction = stair_lighting_ns.class_(
+    "StairLightingTurnUpAction", automation.Action
+)
+StairLightingTurnDownAction = stair_lighting_ns.class_(
+    "StairLightingTurnDownAction", automation.Action
 )
 
 STEP_SCHEMA = cv.Schema(
@@ -63,8 +72,8 @@ async def to_code(config):
 
 
 @automation.register_action(
-    "stair_lighting.turn_on",
-    StairLightingTurnOnAction,
+    "stair_lighting.control",
+    StairLightingControlAction,
     cv.Schema(
         {
             cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
@@ -73,15 +82,30 @@ async def to_code(config):
         }
     ),
 )
-async def stair_lighting_turn_on_to_code(config, action_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, paren)
+async def stair_lighting_control_to_code(config, action_id, template_arg, args):
+    parent = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, parent)
     if CONF_EFFECT_BRIGHTNESS in config:
-        templ = await cg.templatable(config[CONF_EFFECT_BRIGHTNESS], args, float)
-        cg.add(var.set_effect_brightness(templ))
+        template = await cg.templatable(config[CONF_EFFECT_BRIGHTNESS], args, float)
+        cg.add(var.set_effect_brightness(template))
     if CONF_NIGHT_BRIGHTNESS in config:
-        templ = await cg.templatable(config[CONF_NIGHT_BRIGHTNESS], args, float)
-        cg.add(var.set_night_brightness(templ))
+        template = await cg.templatable(config[CONF_NIGHT_BRIGHTNESS], args, float)
+        cg.add(var.set_night_brightness(template))
+    return var
+
+
+@automation.register_action(
+    "stair_lighting.turn_on",
+    StairLightingTurnOnAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
+        }
+    ),
+)
+async def stair_lighting_turn_on_to_code(config, action_id, template_arg, args):
+    parent = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, parent)
     return var
 
 
@@ -95,6 +119,36 @@ async def stair_lighting_turn_on_to_code(config, action_id, template_arg, args):
     ),
 )
 async def stair_lighting_turn_off_to_code(config, action_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, paren)
+    parent = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, parent)
+    return var
+
+
+@automation.register_action(
+    "stair_lighting.turn_up",
+    StairLightingTurnUpAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
+        }
+    ),
+)
+async def stair_lighting_turn_up_to_code(config, action_id, template_arg, args):
+    parent = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, parent)
+    return var
+
+
+@automation.register_action(
+    "stair_lighting.turn_down",
+    StairLightingTurnDownAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
+        }
+    ),
+)
+async def stair_lighting_turn_down_to_code(config, action_id, template_arg, args):
+    parent = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, parent)
     return var
