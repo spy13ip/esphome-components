@@ -31,7 +31,7 @@ ColorStairLightingEffect = stair_lighting_ns.class_("ColorStairLightingEffect", 
         cv.Optional("progress_step_interval", default="1s"): cv.positive_time_period_milliseconds,
     },
 )
-async def addressable_fireworks_effect_to_code(config, effect_id):
+async def color_stair_lighting_effect_to_code(config, effect_id):
     steps = []
     for step_config in config.get("steps", []):
         steps.append(
