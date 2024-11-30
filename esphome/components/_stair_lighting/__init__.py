@@ -7,6 +7,9 @@ from esphome.const import (
     CONF_UPDATE_INTERVAL,
 )
 
+AUTO_LOAD = ["socket"]
+DEPENDENCIES = ["network"]
+
 stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
 StepConfig = stair_lighting_ns.struct("StepConfig")
 StairLightingEffect = stair_lighting_ns.class_("StairLightingEffect", AddressableLightEffect)
