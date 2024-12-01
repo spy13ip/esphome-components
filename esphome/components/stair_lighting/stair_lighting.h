@@ -14,9 +14,9 @@ namespace stair_lighting {
 class StairLightingEffect;
 
 struct StairLightingStepConfig {
-  int32_t offset = 0;
-  int32_t size = 0;
-  bool reversed = false;
+  int32_t offset;
+  int32_t size;
+  bool reversed;
 };
 
 class StairLightingComponent : public Component {
