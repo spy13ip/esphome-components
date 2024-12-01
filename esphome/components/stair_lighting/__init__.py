@@ -13,7 +13,7 @@ CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
 
 StairLightingComponent = stair_lighting_ns.class_("StairLightingComponent", cg.Component)
-StairLightingStepConfig = stair_lighting_ns.class_("StairLightingStepConfig")
+StairLightingStepConfig = stair_lighting_ns.struct("StairLightingStepConfig")
 StairLightingEffect = stair_lighting_ns.class_("StairLightingEffect", AddressableLightEffect)
 ColorStairLightingEffect = stair_lighting_ns.class_("ColorStairLightingEffect", StairLightingEffect)
 
