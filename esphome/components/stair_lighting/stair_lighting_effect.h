@@ -56,9 +56,9 @@ class ProgressData {
   ActionOperation lastOperation_ = DECREASE;
 };
 
-class Step {
+class StairLightingStep {
  public:
-  explicit Step(int32_t size, bool reversed) : size_(size), reversed_(reversed) {}
+  explicit StairLightingStep(int32_t size, bool reversed) : size_(size), reversed_(reversed) {}
 
   void init(AddressableLight *light, int32_t offset) {
     light_ = light;
@@ -92,7 +92,7 @@ class StairLightingEffect : public AddressableLightEffect {
   explicit StairLightingEffect(const std::string &name) : AddressableLightEffect(name) {}
 
   void set_parent(StairLightingComponent *parent) { parent_ = parent; }
-  void add_steps(vector<Step *> &steps) {
+  void add_steps(vector<StairLightingStep *> &steps) {
     for (auto *step : steps) {
       steps_.push_back(step);
     }
@@ -111,18 +111,18 @@ class StairLightingEffect : public AddressableLightEffect {
 
  protected:
   StairLightingComponent *parent_ = nullptr;
-  vector<Step *> steps_;
+  vector<StairLightingStep *> steps_;
   uint32_t next_step_interval_ = 0;
   uint32_t progress_step_interval_ = 0;
 
   vector<Action> effect_actions_;
   vector<Action> night_actions_;
 
-  virtual bool apply(Step &step, const Color &current_color) = 0;
+  virtual bool apply(StairLightingStep &step, const Color &current_color) = 0;
 
-  void apply_actions(vector<Action> &actions, const std::function<ProgressData &(Step &)> &data, uint32_t time);
+  void apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data, uint32_t time);
   static void clean_actions(vector<Action> &actions);
-  void reset_data(const std::function<ProgressData &(Step &)> &data);
+  void reset_data(const std::function<ProgressData &(StairLightingStep &)> &data);
   float calculate_step_progress(const Action &action, float progress, int32_t index, bool &finished);
   bool is_finished(const Action &action, int32_t index, float step_progress);
 };

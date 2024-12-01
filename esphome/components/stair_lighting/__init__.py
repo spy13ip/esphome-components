@@ -13,8 +13,7 @@ CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
 
 StairLightingComponent = stair_lighting_ns.class_("StairLightingComponent", cg.Component)
-
-Step = stair_lighting_ns.class_("Step")
+StairLightingStep = stair_lighting_ns.class_("StairLightingStep")
 StairLightingEffect = stair_lighting_ns.class_("StairLightingEffect", AddressableLightEffect)
 ColorStairLightingEffect = stair_lighting_ns.class_("ColorStairLightingEffect", StairLightingEffect)
 
@@ -56,7 +55,7 @@ async def color_stair_lighting_effect_to_code(config, effect_id):
     cg.add(effect.set_update_interval(config[CONF_UPDATE_INTERVAL]))
     steps = []
     for step_config in config.get("steps", []):
-        step = cg.new_Pvariable(cv.declare_id(Step), step_config["size"], step_config["reversed"])
+        step = await cg.new_Pvariable(cv.declare_id(StairLightingStep), step_config["size"], step_config["reversed"])
         steps.append(step)
     cg.add(effect.add_steps(steps))
     cg.add(effect.set_next_step_interval(config["next_step_interval"]))

@@ -17,7 +17,7 @@ class ColorStairLightingEffect : public StairLightingEffect {
   explicit ColorStairLightingEffect(const std::string &name) : StairLightingEffect(name) {}
 
  protected:
-  bool apply(Step &step, const Color &current_color) override {
+  bool apply(StairLightingStep &step, const Color &current_color) override {
     float effect = calculate_brightness(step.effect_data());
     float night = calculate_brightness(step.night_data());
     float result = max(effect, night);

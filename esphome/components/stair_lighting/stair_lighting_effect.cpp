@@ -23,8 +23,8 @@ void StairLightingEffect::stop() { parent_->remove_effect(this); }
 
 void StairLightingEffect::apply(AddressableLight &it, const Color &current_color) {
   const uint32_t time = millis();
-  apply_actions(effect_actions_, &Step::effect_data, time);
-  apply_actions(night_actions_, &Step::night_data, time);
+  apply_actions(effect_actions_, &StairLightingStep::effect_data, time);
+  apply_actions(night_actions_, &StairLightingStep::night_data, time);
 
   bool schedule_show = false;
   for (auto *step : steps_) {
@@ -35,7 +35,7 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
   }
 }
 
-void StairLightingEffect::apply_actions(vector<Action> &actions, const std::function<ProgressData &(Step &)> &data,
+void StairLightingEffect::apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data,
                                         uint32_t time) {
   clean_actions(actions);
   reset_data(data);
@@ -72,7 +72,7 @@ void StairLightingEffect::clean_actions(vector<Action> &actions) {
   }
 }
 
-void StairLightingEffect::reset_data(const std::function<ProgressData &(Step &)> &data) {
+void StairLightingEffect::reset_data(const std::function<ProgressData &(StairLightingStep &)> &data) {
   for (auto *step : steps_) {
     data(*step).reset();
   }
