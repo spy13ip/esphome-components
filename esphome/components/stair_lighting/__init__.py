@@ -21,11 +21,11 @@ StairLightingStepConfig = stair_lighting_ns.struct("StairLightingStepConfig")
 StairLightingEffect = stair_lighting_ns.class_("StairLightingEffect", AddressableLightEffect)
 ColorStairLightingEffect = stair_lighting_ns.class_("ColorStairLightingEffect", StairLightingEffect)
 # automation
-StairLightingControlAction = stair_lighting_ns.class_("StairLightingControlAction", automation.Action)
-StairLightingTurnUpAction = stair_lighting_ns.class_("StairLightingTurnUpAction", automation.Action)
-StairLightingTurnDownAction = stair_lighting_ns.class_("StairLightingTurnDownAction", automation.Action)
-StairLightingTurnFullAction = stair_lighting_ns.class_("StairLightingTurnFullAction", automation.Action)
-StairLightingTurnOffAction = stair_lighting_ns.class_("StairLightingTurnOffAction", automation.Action)
+ControlAction = stair_lighting_ns.class_("StairLightingControlAction", automation.Action)
+TurnUpAction = stair_lighting_ns.class_("StairLightingTurnUpAction", automation.Action)
+TurnDownAction = stair_lighting_ns.class_("StairLightingTurnDownAction", automation.Action)
+TurnFullAction = stair_lighting_ns.class_("StairLightingTurnFullAction", automation.Action)
+TurnOffAction = stair_lighting_ns.class_("StairLightingTurnOffAction", automation.Action)
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -82,9 +82,16 @@ async def color_stair_lighting_effect_to_code(config, effect_id):
     return effect
 
 
+STAIR_LIGHTING_ACTION_SCHEMA = automation.maybe_simple_id(
+    {
+        cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
+    }
+)
+
+
 @automation.register_action(
     "stair_lighting.control",
-    StairLightingControlAction,
+    ControlAction,
     cv.Schema(
         {
             cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
@@ -105,61 +112,11 @@ async def stair_lighting_control_to_code(config, action_id, template_arg, args):
     return var
 
 
-@automation.register_action(
-    "stair_lighting.turn_up",
-    StairLightingTurnUpAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_up_to_code(config, action_id, template_arg, args):
+@automation.register_action("stair_lighting.turn_up", TurnUpAction, STAIR_LIGHTING_ACTION_SCHEMA)
+@automation.register_action("stair_lighting.turn_down", TurnDownAction, STAIR_LIGHTING_ACTION_SCHEMA)
+@automation.register_action("stair_lighting.turn_full", TurnFullAction, STAIR_LIGHTING_ACTION_SCHEMA)
+@automation.register_action("stair_lighting.turn_off", TurnOffAction, STAIR_LIGHTING_ACTION_SCHEMA)
+async def stair_lighting_turn_action_to_code(config, action_id, template_arg, args):
     parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_down",
-    StairLightingTurnDownAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_down_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_full",
-    StairLightingTurnFullAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_full_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_off",
-    StairLightingTurnOffAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_off_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
+    action = cg.new_Pvariable(action_id, template_arg, parent)
+    return action
