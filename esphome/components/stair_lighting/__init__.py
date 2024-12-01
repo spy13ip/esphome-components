@@ -10,7 +10,7 @@ from esphome.const import (
 
 CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 
-stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting_old")
+stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
 
 StairLightingComponent = stair_lighting_ns.class_("StairLightingComponent", cg.Component)
 
