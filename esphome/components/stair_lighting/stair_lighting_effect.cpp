@@ -13,10 +13,9 @@ void StairLightingEffect::run_night_action(ActionCategory category, ActionOperat
 
 void StairLightingEffect::init() {
   auto *light = static_cast<AddressableLight *>(state_->get_output());
-  int32_t offset = 0;
-  for (auto *step : steps_) {
-    step->init(light, offset);
-    offset += step->size();
+  steps_.reserve(parent_->get_steps_config().size());
+  for (auto step_config : parent_->get_steps_config()) {
+    steps_.push_back(new StairLightingStep(light, step_config.offset, step_config.size, step_config.reversed));
   }
 }
 void StairLightingEffect::start() { parent_->add_effect(this); }

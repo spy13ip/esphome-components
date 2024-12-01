@@ -62,12 +62,8 @@ class ProgressData {
 
 class StairLightingStep {
  public:
-  explicit StairLightingStep(int32_t size, bool reversed) : size_(size), reversed_(reversed) {}
-
-  void init(AddressableLight *light, int32_t offset) {
-    light_ = light;
-    offset_ = offset;
-  }
+  explicit StairLightingStep(AddressableLight *light, int32_t offset, int32_t size, bool reversed)
+      : light_(light), offset_(offset), size_(size), reversed_(reversed) {}
 
   ESPColorView operator[](int32_t index) const {
     if (!reversed_) {
@@ -96,11 +92,6 @@ class StairLightingEffect : public AddressableLightEffect {
   explicit StairLightingEffect(const std::string &name) : AddressableLightEffect(name) {}
 
   void set_parent(StairLightingComponent *parent) { parent_ = parent; }
-  void add_steps(const vector<StairLightingStep *> &steps) {
-    for (auto *step : steps) {
-      steps_.push_back(step);
-    }
-  }
   void set_next_step_interval(uint32_t next_step_interval) { next_step_interval_ = next_step_interval; }
   void set_progress_step_interval(uint32_t progress_step_interval) { progress_step_interval_ = progress_step_interval; }
 
