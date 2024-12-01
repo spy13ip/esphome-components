@@ -6,6 +6,10 @@
 #include "stair_lighting.h"
 
 using std::vector;
+using std::isnan;
+using std::max;
+using std::min;
+
 using namespace esphome::light;
 
 namespace esphome {
