@@ -96,7 +96,7 @@ class StairLightingEffect : public AddressableLightEffect {
   explicit StairLightingEffect(const std::string &name) : AddressableLightEffect(name) {}
 
   void set_parent(StairLightingComponent *parent) { parent_ = parent; }
-  void add_steps(vector<StairLightingStep *> &steps) {
+  void add_steps(const vector<StairLightingStep *> &steps) {
     for (auto *step : steps) {
       steps_.push_back(step);
     }
