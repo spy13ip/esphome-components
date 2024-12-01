@@ -38,6 +38,7 @@ async def to_code(config):
         cv.Required("steps"): cv.ensure_list(
             cv.Schema(
                 {
+                    cv.GenerateID(): cv.declare_id(StairLightingStep),
                     cv.Required("size"): cv.positive_int,
                     cv.Optional("reversed", default="false"): cv.boolean
                 }
@@ -55,7 +56,7 @@ async def color_stair_lighting_effect_to_code(config, effect_id):
     cg.add(effect.set_update_interval(config[CONF_UPDATE_INTERVAL]))
     steps = []
     for step_config in config.get("steps", []):
-        step = await cg.new_Pvariable(cv.declare_id(StairLightingStep), step_config["size"], step_config["reversed"])
+        step = await cg.new_Pvariable(step_config[CONF_ID], step_config["size"], step_config["reversed"])
         steps.append(step)
     cg.add(effect.add_steps(steps))
     cg.add(effect.set_next_step_interval(config["next_step_interval"]))
