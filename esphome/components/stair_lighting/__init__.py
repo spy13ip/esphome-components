@@ -1,154 +1,64 @@
-from esphome import automation
 import esphome.codegen as cg
-from esphome.components import light
 import esphome.config_validation as cv
-from esphome.const import CONF_ADDRESSABLE_LIGHT_ID, CONF_ID
-
-AUTO_LOAD = ["sensor", "binary_sensor", "switch"]
-
-# Config constants
-CONF_STEPS = "steps"
-CONF_START = "start"
-CONF_END = "end"
-CONF_EFFECT_BRIGHTNESS = "effect_brightness"
-CONF_NIGHT_BRIGHTNESS = "night_brightness"
-
-# Classes
-stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
-
-StairLightingComponent = stair_lighting_ns.class_(
-    "StairLightingComponent", cg.PollingComponent
-)
-StairLightingStep = stair_lighting_ns.class_("StairLightingStep")
-StairLightingEffect = stair_lighting_ns.class_("StairlightingEffect")
-StairLightingControlAction = stair_lighting_ns.class_(
-    "StairLightingControlAction", automation.Action
-)
-StairLightingTurnOnAction = stair_lighting_ns.class_(
-    "StairLightingTurnOnAction", automation.Action
-)
-StairLightingTurnOffAction = stair_lighting_ns.class_(
-    "StairLightingTurnOffAction", automation.Action
-)
-StairLightingTurnUpAction = stair_lighting_ns.class_(
-    "StairLightingTurnUpAction", automation.Action
-)
-StairLightingTurnDownAction = stair_lighting_ns.class_(
-    "StairLightingTurnDownAction", automation.Action
+from esphome.components.light.types import AddressableLightEffect
+from esphome.components.light.effects import register_addressable_effect
+from esphome.const import (
+    CONF_ID,
+    CONF_NAME,
+    CONF_UPDATE_INTERVAL,
 )
 
-STEP_SCHEMA = cv.Schema(
-    {
-        cv.Required(CONF_ADDRESSABLE_LIGHT_ID): cv.use_id(light.AddressableLightState),
-    }
-)
+CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 
+stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting_old")
 
-async def step_to_code(config):
-    light = await cg.get_variable(config[CONF_ADDRESSABLE_LIGHT_ID])
-    return light
+StairLightingComponent = stair_lighting_ns.class_("StairLightingComponent", cg.Component)
 
+Step = stair_lighting_ns.struct("Step")
+StairLightingEffect = stair_lighting_ns.class_("StairLightingEffect", AddressableLightEffect)
+ColorStairLightingEffect = stair_lighting_ns.class_("ColorStairLightingEffect", StairLightingEffect)
 
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(StairLightingComponent),
-        cv.Required(CONF_STEPS): cv.All(cv.ensure_list(STEP_SCHEMA), cv.Length(min=1)),
-        cv.Optional(CONF_EFFECT_BRIGHTNESS, default="100%"): cv.percentage,
-        cv.Optional(CONF_NIGHT_BRIGHTNESS, default="10%"): cv.percentage,
     }
-).extend(cv.COMPONENT_SCHEMA)
+)
 
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    steps = []
-    for step_config in config.get(CONF_STEPS, []):
-        steps.append(await step_to_code(step_config))
-    cg.add(var.add_steps(steps))
-    cg.add(var.set_effect_brightness(config[CONF_EFFECT_BRIGHTNESS]))
-    cg.add(var.set_night_brightness(config[CONF_NIGHT_BRIGHTNESS]))
-
     await cg.register_component(var, config)
 
 
-@automation.register_action(
-    "stair_lighting.control",
-    StairLightingControlAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-            cv.Optional(CONF_EFFECT_BRIGHTNESS): cv.templatable(cv.percentage),
-            cv.Optional(CONF_NIGHT_BRIGHTNESS): cv.templatable(cv.percentage),
-        }
-    ),
+@register_addressable_effect(
+    "color_stair_lighting",
+    ColorStairLightingEffect,
+    "Color Stair Lighting",
+    {
+        cv.GenerateID(CONF_STAIR_LIGHTING_ID): cv.use_id(StairLightingComponent),
+        cv.Required("steps"): cv.ensure_list(
+            cv.Schema(
+                {
+                    cv.Required("size"): cv.positive_int,
+                    cv.Optional("reversed", default="false"): cv.boolean
+                }
+            )
+        ),
+        cv.Optional(CONF_UPDATE_INTERVAL, default="32ms"): cv.positive_time_period_milliseconds,
+        cv.Optional("next_step_interval", default="350ms"): cv.positive_time_period_milliseconds,
+        cv.Optional("progress_step_interval", default="1s"): cv.positive_time_period_milliseconds,
+    },
 )
-async def stair_lighting_control_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    if CONF_EFFECT_BRIGHTNESS in config:
-        template = await cg.templatable(config[CONF_EFFECT_BRIGHTNESS], args, float)
-        cg.add(var.set_effect_brightness(template))
-    if CONF_NIGHT_BRIGHTNESS in config:
-        template = await cg.templatable(config[CONF_NIGHT_BRIGHTNESS], args, float)
-        cg.add(var.set_night_brightness(template))
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_on",
-    StairLightingTurnOnAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_on_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_off",
-    StairLightingTurnOffAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_off_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_up",
-    StairLightingTurnUpAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_up_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
-
-
-@automation.register_action(
-    "stair_lighting.turn_down",
-    StairLightingTurnDownAction,
-    cv.Schema(
-        {
-            cv.Required(CONF_ID): cv.use_id(StairLightingComponent),
-        }
-    ),
-)
-async def stair_lighting_turn_down_to_code(config, action_id, template_arg, args):
-    parent = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(action_id, template_arg, parent)
-    return var
+async def color_stair_lighting_effect_to_code(config, effect_id):
+    parent = await cg.get_variable(config[CONF_STAIR_LIGHTING_ID])
+    effect = cg.new_Pvariable(effect_id, config[CONF_NAME])
+    cg.add(effect.set_parent(parent))
+    cg.add(effect.set_update_interval(config[CONF_UPDATE_INTERVAL]))
+    steps = []
+    for step_config in config.get("steps", []):
+        step = cg.new_Pvariable(cv.declare_id(Step), step_config["size"], step_config["reversed"])
+        steps.append(step)
+    cg.add(effect.add_steps(steps))
+    cg.add(effect.set_next_step_interval(config["next_step_interval"]))
+    cg.add(effect.set_progress_step_interval(config["progress_step_interval"]))
+    return effect

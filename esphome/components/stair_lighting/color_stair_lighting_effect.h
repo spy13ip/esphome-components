@@ -14,8 +14,7 @@ namespace stair_lighting {
 
 class ColorStairLightingEffect : public StairLightingEffect {
  public:
-  explicit ColorStairLightingEffect(const std::string &name, const vector<StepConfig> &step_config)
-      : StairLightingEffect(name, step_config) {}
+  explicit ColorStairLightingEffect(const std::string &name) : StairLightingEffect(name) {}
 
  protected:
   bool apply(Step &step, const Color &current_color) override {
