@@ -44,7 +44,6 @@ async def to_code(config):
                 }
             )
         ),
-        cv.Optional(CONF_UPDATE_INTERVAL, default="32ms"): cv.positive_time_period_milliseconds,
         cv.Optional("next_step_interval", default="350ms"): cv.positive_time_period_milliseconds,
         cv.Optional("progress_step_interval", default="1s"): cv.positive_time_period_milliseconds,
     },
@@ -53,7 +52,6 @@ async def color_stair_lighting_effect_to_code(config, effect_id):
     parent = await cg.get_variable(config[CONF_STAIR_LIGHTING_ID])
     effect = cg.new_Pvariable(effect_id, config[CONF_NAME])
     cg.add(effect.set_parent(parent))
-    cg.add(effect.set_update_interval(config[CONF_UPDATE_INTERVAL]))
     steps = []
     for step_config in config.get("steps", []):
         step = cg.new_Pvariable(step_config[CONF_ID], step_config["size"], step_config["reversed"])
