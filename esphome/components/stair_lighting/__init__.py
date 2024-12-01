@@ -5,7 +5,6 @@ from esphome.components.light.effects import register_addressable_effect
 from esphome.const import (
     CONF_ID,
     CONF_NAME,
-    CONF_UPDATE_INTERVAL,
 )
 
 CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
