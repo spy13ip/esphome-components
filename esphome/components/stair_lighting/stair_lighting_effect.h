@@ -1,9 +1,7 @@
 #pragma once
 
 #include <vector>
-
 #include "esphome/components/light/addressable_light_effect.h"
-#include "stair_lighting.h"
 
 using std::vector;
 using std::isnan;
@@ -14,6 +12,8 @@ using namespace esphome::light;
 
 namespace esphome {
 namespace stair_lighting {
+
+class StairLightingComponent;
 
 enum ActionCategory { FULL, UP, DOWN };
 
@@ -124,7 +124,8 @@ class StairLightingEffect : public AddressableLightEffect {
 
   virtual bool apply(StairLightingStep &step, const Color &current_color) = 0;
 
-  void apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data, uint32_t time);
+  void apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data,
+                     uint32_t time);
   static void clean_actions(vector<Action> &actions);
   void reset_data(const std::function<ProgressData &(StairLightingStep &)> &data);
   float calculate_step_progress(const Action &action, float progress, int32_t index, bool &finished);

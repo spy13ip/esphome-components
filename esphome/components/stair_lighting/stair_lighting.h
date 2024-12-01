@@ -1,14 +1,15 @@
 #pragma once
 
-#include <vector>
+#include <set>
 
 #include "esphome/core/component.h"
-#include "stair_lighting_effect.h"
 
 using std::set;
 
 namespace esphome {
 namespace stair_lighting {
+
+class StairLightingEffect;
 
 class StairLightingComponent : public Component {
  public:

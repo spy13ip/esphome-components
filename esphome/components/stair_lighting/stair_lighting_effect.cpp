@@ -1,4 +1,5 @@
 #include "stair_lighting_effect.h"
+#include "stair_lighting.h"
 
 namespace esphome {
 namespace stair_lighting {
@@ -35,8 +36,8 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
   }
 }
 
-void StairLightingEffect::apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data,
-                                        uint32_t time) {
+void StairLightingEffect::apply_actions(vector<Action> &actions,
+                                        const std::function<ProgressData &(StairLightingStep &)> &data, uint32_t time) {
   clean_actions(actions);
   reset_data(data);
   for (auto &action : actions) {

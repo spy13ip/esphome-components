@@ -1,4 +1,5 @@
 #include "stair_lighting.h"
+#include "stair_lighting_effect.h"
 
 namespace esphome {
 namespace stair_lighting {
