@@ -56,7 +56,7 @@ async def color_stair_lighting_effect_to_code(config, effect_id):
     cg.add(effect.set_update_interval(config[CONF_UPDATE_INTERVAL]))
     steps = []
     for step_config in config.get("steps", []):
-        step = await cg.new_Pvariable(step_config[CONF_ID], step_config["size"], step_config["reversed"])
+        step = cg.new_Pvariable(step_config[CONF_ID], step_config["size"], step_config["reversed"])
         steps.append(step)
     cg.add(effect.add_steps(steps))
     cg.add(effect.set_next_step_interval(config["next_step_interval"]))
