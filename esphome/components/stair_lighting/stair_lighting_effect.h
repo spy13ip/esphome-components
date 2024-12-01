@@ -51,7 +51,7 @@ class ProgressData {
         data_ = max(data_, value);
         break;
       case DECREASE:
-        data_ = min(data_, value);
+        data_ = min(data_, 1.0f - value);
         break;
     }
   }
