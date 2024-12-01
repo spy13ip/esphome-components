@@ -18,28 +18,12 @@ class ColorStairLightingEffect : public StairLightingEffect {
 
  protected:
   bool apply(StairLightingStep &step, const Color &current_color) override {
-    float effect = calculate_brightness(step.effect_data());
-    float night = calculate_brightness(step.night_data());
-    float result = max(effect, night);
+    float result = max(step.effect_data().get(), step.night_data().get());
     Color result_color = current_color * (uint8_t) (255.0f * result);
     for (int i = 0; i < step.size(); i++) {
       step[i] = result_color;
     }
     return true;
-  }
-
-  static float calculate_brightness(const ProgressData &data) {
-    const auto &operation = data.last_operation();
-    const float &increase = data.get(INCREASE);
-    const float &decrease = data.get(DECREASE);
-    if (isnan(increase) && isnan(decrease))
-      return 0;
-    switch (operation) {
-      case INCREASE:
-        return isnan(decrease) ? increase : max(increase, 1.0f - decrease);
-      case DECREASE:
-        return isnan(increase) ? 1.0f - decrease : min(increase, 1.0f - decrease);
-    }
   }
 };
 

@@ -21,43 +21,43 @@ enum ActionOperation { INCREASE, DECREASE };
 
 class Action {
  public:
-  Action(uint32_t start_time, ActionCategory category, ActionOperation operation)
-      : start_time_(start_time), category_(category), operation_(operation) {}
-
   uint32_t get_start_time() const { return start_time_; }
   ActionCategory get_category() const { return category_; }
   ActionOperation get_operation() const { return operation_; }
   bool is_finished() const { return finished_; }
 
+  void reset(uint32_t start_time, ActionCategory category, ActionOperation operation) {
+    start_time_ = start_time;
+    category_ = category;
+    operation_ = operation;
+    finished_ = false;
+  }
   void finish() { finished_ = true; }
 
  protected:
-  uint32_t start_time_;
-  ActionCategory category_;
-  ActionOperation operation_;
-
-  bool finished_{false};
+  uint32_t start_time_ = 0;
+  ActionCategory category_ = ActionCategory::FULL;
+  ActionOperation operation_ = ActionOperation::DECREASE;
+  bool finished_ = false;
 };
 
 class ProgressData {
  public:
-  float get(ActionOperation operation) const { return data_[operation]; }
-  ActionOperation last_operation() const { return lastOperation_; }
-
-  void reset() {
-    data_[INCREASE] = NAN;
-    data_[DECREASE] = NAN;
-  }
+  float get() const { return data_; }
 
   void push(ActionOperation operation, float value) {
-    lastOperation_ = operation;
-    float &data_value = data_[operation];
-    data_value = isnan(data_value) ? value : max(data_value, value);
+    switch (operation) {
+      case INCREASE:
+        data_ = max(data_, value);
+        break;
+      case DECREASE:
+        data_ = min(data_, value);
+        break;
+    }
   }
 
  protected:
-  float data_[2]{};
-  ActionOperation lastOperation_ = DECREASE;
+  float data_ = 0;
 };
 
 class StairLightingStep {
@@ -110,15 +110,12 @@ class StairLightingEffect : public AddressableLightEffect {
   uint32_t next_step_interval_ = 0;
   uint32_t progress_step_interval_ = 0;
 
-  vector<Action> effect_actions_;
-  vector<Action> night_actions_;
+  Action effect_action_;
+  Action night_action_;
 
   virtual bool apply(StairLightingStep &step, const Color &current_color) = 0;
 
-  void apply_actions(vector<Action> &actions, const std::function<ProgressData &(StairLightingStep &)> &data,
-                     uint32_t time);
-  static void clean_actions(vector<Action> &actions);
-  void reset_data(const std::function<ProgressData &(StairLightingStep &)> &data);
+  void apply_action(uint32_t time, Action &action, const std::function<ProgressData &(StairLightingStep &)> &data);
   float calculate_step_progress(const Action &action, float progress, int32_t index, bool &finished);
   bool is_finished(const Action &action, int32_t index, float step_progress);
 };
