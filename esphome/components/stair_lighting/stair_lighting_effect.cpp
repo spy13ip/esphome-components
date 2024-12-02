@@ -15,16 +15,22 @@ void StairLightingEffect::init() {
   auto *light = static_cast<AddressableLight *>(state_->get_output());
   steps_.reserve(parent_->get_steps_config().size());
   for (auto step_config : parent_->get_steps_config()) {
-    steps_.push_back(new StairLightingStep(light, step_config.offset, step_config.size, step_config.reversed));
+    steps_.push_back(new Step(light, step_config.offset, step_config.size, step_config.reversed));
   }
 }
-void StairLightingEffect::start() { parent_->add_effect(this); }
-void StairLightingEffect::stop() { parent_->remove_effect(this); }
+void StairLightingEffect::start() {
+  LightEffect::start();
+  parent_->add_effect(this);
+}
+void StairLightingEffect::stop() {
+  parent_->remove_effect(this);
+  AddressableLightEffect::stop();
+}
 
 void StairLightingEffect::apply(AddressableLight &it, const Color &current_color) {
   const uint32_t time = millis();
-  apply_action(time, effect_action_, &StairLightingStep::effect_data);
-  apply_action(time, night_action_, &StairLightingStep::night_data);
+  apply_action(time, effect_action_, &Step::effect_data);
+  apply_action(time, night_action_, &Step::night_data);
 
   bool schedule_show = false;
   for (auto *step : steps_) {
@@ -36,7 +42,7 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
 }
 
 void StairLightingEffect::apply_action(uint32_t time, Action &action,
-                                       const std::function<ProgressData &(StairLightingStep &)> &data) {
+                                       const std::function<ProgressData &(Step &)> &data) {
   float full_progress = (float) (time - action.get_start_time()) / (float) next_step_interval_;
   int i = 0;
   bool finish = false;

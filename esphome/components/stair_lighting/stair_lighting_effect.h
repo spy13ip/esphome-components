@@ -3,6 +3,8 @@
 #include <vector>
 #include "esphome/components/light/addressable_light_effect.h"
 
+#include "types.h"
+
 using std::vector;
 using std::isnan;
 using std::max;
@@ -14,10 +16,6 @@ namespace esphome {
 namespace stair_lighting {
 
 class StairLightingComponent;
-
-enum ActionCategory { FULL, UP, DOWN };
-
-enum ActionOperation { INCREASE, DECREASE };
 
 class Action {
  public:
@@ -37,7 +35,7 @@ class Action {
  protected:
   uint32_t start_time_ = 0;
   ActionCategory category_ = ActionCategory::FULL;
-  ActionOperation operation_ = ActionOperation::DECREASE;
+  ActionOperation operation_ = ActionOperation::OFF;
   bool finished_ = false;
 };
 
@@ -47,10 +45,10 @@ class ProgressData {
 
   void push(ActionOperation operation, float value) {
     switch (operation) {
-      case INCREASE:
+      case ON:
         data_ = max(data_, value);
         break;
-      case DECREASE:
+      case OFF:
         data_ = min(data_, 1.0f - value);
         break;
     }
@@ -60,9 +58,9 @@ class ProgressData {
   float data_ = 0;
 };
 
-class StairLightingStep {
+class Step {
  public:
-  explicit StairLightingStep(AddressableLight *light, int32_t offset, int32_t size, bool reversed)
+  explicit Step(AddressableLight *light, int32_t offset, int32_t size, bool reversed)
       : light_(light), offset_(offset), size_(size), reversed_(reversed) {}
 
   ESPColorView operator[](int32_t index) const {
@@ -106,16 +104,16 @@ class StairLightingEffect : public AddressableLightEffect {
 
  protected:
   StairLightingComponent *parent_ = nullptr;
-  vector<StairLightingStep *> steps_;
+  vector<Step *> steps_;
   uint32_t next_step_interval_ = 0;
   uint32_t progress_step_interval_ = 0;
 
   Action effect_action_;
   Action night_action_;
 
-  virtual bool apply(StairLightingStep &step, const Color &current_color) = 0;
+  virtual bool apply(Step &step, const Color &current_color) = 0;
 
-  void apply_action(uint32_t time, Action &action, const std::function<ProgressData &(StairLightingStep &)> &data);
+  void apply_action(uint32_t time, Action &action, const std::function<ProgressData &(Step &)> &data);
   float calculate_step_progress(const Action &action, float progress, int32_t index, bool &finished);
   bool is_finished(const Action &action, int32_t index, float step_progress);
 };
