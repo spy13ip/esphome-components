@@ -54,7 +54,7 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
   const uint32_t calculate_time = millis() - time;
 
   apply(steps_, current_color);
-  const uint32_t effect_time = millis() - calculate_time;
+  const uint32_t effect_time = millis() - time - calculate_time;
   it.schedule_show();
   ESP_LOGD(TAG, "calculate %dms, effect %dms", calculate_time, effect_time);
 }
