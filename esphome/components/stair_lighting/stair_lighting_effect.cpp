@@ -1,8 +1,6 @@
 #include "stair_lighting_effect.h"
 #include "stair_lighting.h"
 
-#include "esphome/core/log.h"
-
 static const char *const TAG = "stair_lighting_effect";
 
 namespace esphome {
@@ -38,25 +36,21 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
     float inverted_step_progress = calculate_step_progress(FULL, full_progress, i);
     auto &data = step->effect_data();
     float new_data;
-    if (action_.get_operation() == ON) {
-      float min_data = min(data.value, 1 - inverted_step_progress);
-      new_data = max(min_data, step_progress);
-    } else if (action_.get_operation() == OFF) {
-      float max_data = max(data.value, inverted_step_progress);
-      new_data = min(max_data, 1 - step_progress);
-    } else {
-      new_data = NAN;
+    switch (action_.get_operation()) {
+      case ON:
+        new_data = max(min(data.value, 1 - inverted_step_progress), step_progress);
+        break;
+      case OFF:
+        new_data = min(max(data.value, inverted_step_progress), 1 - step_progress);
+        break;
     }
     data.operation = new_data >= data.value ? ON : OFF;
     data.value = new_data;
     i++;
   }
-  const uint32_t calculate_time = millis() - time;
-
-  apply(steps_, current_color);
-  const uint32_t effect_time = millis() - time - calculate_time;
-  it.schedule_show();
-  ESP_LOGD(TAG, "calculate %dms, effect %dms", calculate_time, effect_time);
+  if (show(current_color, parent_->get_effect_brightness(), parent_->get_night_brightness())) {
+    it.schedule_show();
+  }
 }
 
 float StairLightingEffect::calculate_step_progress(ActionCategory category, float full_progress, int32_t index) {

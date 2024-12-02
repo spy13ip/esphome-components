@@ -34,6 +34,8 @@ struct State {
 class StairLightingComponent : public Component {
  public:
   void set_steps_config(const vector<StairLightingStepConfig> &steps_config) { steps_config_ = steps_config; }
+  vector<StairLightingStepConfig> &get_steps_config() { return steps_config_; }
+
   void set_upper_sensor(BinarySensor *upper_sensor) { upper_sensor_ = upper_sensor; }
   void set_lower_sensor(BinarySensor *lower_sensor) { lower_sensor_ = lower_sensor; }
 
@@ -41,7 +43,9 @@ class StairLightingComponent : public Component {
   void set_off_timeout(uint32_t off_timeout) { off_timeout_ = off_timeout; }
 
   void set_effect_brightness(float effect_brightness) { effect_brightness_ = effect_brightness; }
+  float get_effect_brightness() const { return effect_brightness_; }
   void set_night_brightness(float night_brightness) { night_brightness_ = night_brightness; }
+  float get_night_brightness() const { return night_brightness_; }
 
   void turn_up();
   void turn_down();
@@ -50,7 +54,6 @@ class StairLightingComponent : public Component {
 
   void add_effect(StairLightingEffect *effect);
   void remove_effect(StairLightingEffect *effect);
-  vector<StairLightingStepConfig> &get_steps_config() { return steps_config_; }
 
   void setup() override;
   void loop() override;

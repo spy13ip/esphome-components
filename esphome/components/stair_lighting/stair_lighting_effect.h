@@ -93,7 +93,7 @@ class StairLightingEffect : public AddressableLightEffect {
 
   Action action_;
 
-  virtual void apply(const vector<Step *> &steps, const Color &current_color) = 0;
+  virtual bool show(const Color &current_color, float brightness, float night_brightness) = 0;
   float calculate_step_progress(ActionCategory category, float full_progress, int32_t index);
 };
 
