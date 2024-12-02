@@ -17,13 +17,13 @@ class ColorStairLightingEffect : public StairLightingEffect {
   explicit ColorStairLightingEffect(const std::string &name) : StairLightingEffect(name) {}
 
  protected:
-  bool apply(Step &step, const Color &current_color) override {
-    float result = max(step.effect_data().get(), step.night_data().get());
-    Color result_color = current_color * (uint8_t) (255.0f * result);
-    for (int i = 0; i < step.size(); i++) {
-      step[i] = result_color;
+  void apply(const vector<Step *> &steps, const Color &current_color) override {
+    for (auto *step : steps) {
+      Color result_color = current_color * (uint8_t) (255.0f * step->effect_data().value);
+      for (int i = 0; i < step->size(); i++) {
+        (*step)[i] = result_color;
+      }
     }
-    return true;
   }
 };
 

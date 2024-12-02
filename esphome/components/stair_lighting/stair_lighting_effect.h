@@ -39,23 +39,9 @@ class Action {
   bool finished_ = false;
 };
 
-class ProgressData {
- public:
-  float get() const { return data_; }
-
-  void push(ActionOperation operation, float value) {
-    switch (operation) {
-      case ON:
-        data_ = max(data_, value);
-        break;
-      case OFF:
-        data_ = min(data_, 1.0f - value);
-        break;
-    }
-  }
-
- protected:
-  float data_ = 0;
+struct ProgressData {
+  ActionOperation operation = OFF;
+  float value = 0.0f;
 };
 
 class Step {
@@ -73,7 +59,6 @@ class Step {
   int32_t size() const { return size_; }
 
   ProgressData &effect_data() { return effect_data_; }
-  ProgressData &night_data() { return night_data_; }
 
  protected:
   AddressableLight *light_ = nullptr;
@@ -82,7 +67,6 @@ class Step {
   bool reversed_ = false;
 
   ProgressData effect_data_;
-  ProgressData night_data_;
 };
 
 class StairLightingEffect : public AddressableLightEffect {
@@ -93,8 +77,7 @@ class StairLightingEffect : public AddressableLightEffect {
   void set_next_step_interval(uint32_t next_step_interval) { next_step_interval_ = next_step_interval; }
   void set_progress_step_interval(uint32_t progress_step_interval) { progress_step_interval_ = progress_step_interval; }
 
-  void run_effect_action(ActionCategory category, ActionOperation operation);
-  void run_night_action(ActionCategory category, ActionOperation operation);
+  void run_action(ActionCategory category, ActionOperation operation);
 
   void init() override;
   void start() override;
@@ -108,14 +91,10 @@ class StairLightingEffect : public AddressableLightEffect {
   uint32_t next_step_interval_ = 0;
   uint32_t progress_step_interval_ = 0;
 
-  Action effect_action_;
-  Action night_action_;
+  Action action_;
 
-  virtual bool apply(Step &step, const Color &current_color) = 0;
-
-  void apply_action(uint32_t time, Action &action, const std::function<ProgressData &(Step &)> &data);
-  float calculate_step_progress(const Action &action, float progress, int32_t index, bool &finished);
-  bool is_finished(const Action &action, int32_t index, float step_progress);
+  virtual void apply(const vector<Step *> &steps, const Color &current_color) = 0;
+  float calculate_step_progress(ActionCategory category, float full_progress, int32_t index);
 };
 
 }  // namespace stair_lighting

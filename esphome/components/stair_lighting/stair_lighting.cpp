@@ -69,7 +69,7 @@ void StairLightingComponent::run_action(uint32_t time, ActionOperation operation
   state_.category = category;
   state_.operation = operation;
   for (auto effect : effects_) {
-    effect->run_effect_action(category, operation);
+    effect->run_action(category, operation);
   }
 }
 void StairLightingComponent::reset_start_time(uint32_t time) { state_.start_time = time; }

@@ -4,11 +4,8 @@
 namespace esphome {
 namespace stair_lighting {
 
-void StairLightingEffect::run_effect_action(ActionCategory category, ActionOperation operation) {
-  effect_action_.reset(millis(), category, operation);
-}
-void StairLightingEffect::run_night_action(ActionCategory category, ActionOperation operation) {
-  night_action_.reset(millis(), category, operation);
+void StairLightingEffect::run_action(ActionCategory category, ActionOperation operation) {
+  action_.reset(millis(), category, operation);
 }
 
 void StairLightingEffect::init() {
@@ -29,60 +26,46 @@ void StairLightingEffect::stop() {
 
 void StairLightingEffect::apply(AddressableLight &it, const Color &current_color) {
   const uint32_t time = millis();
-  apply_action(time, effect_action_, &Step::effect_data);
-  apply_action(time, night_action_, &Step::night_data);
 
-  bool schedule_show = false;
-  for (auto *step : steps_) {
-    schedule_show |= apply(*step, current_color);
-  }
-  if (schedule_show) {
-    it.schedule_show();
-  }
-}
-
-void StairLightingEffect::apply_action(uint32_t time, Action &action,
-                                       const std::function<ProgressData &(Step &)> &data) {
-  float full_progress = (float) (time - action.get_start_time()) / (float) next_step_interval_;
+  float full_progress = (float) (time - action_.get_start_time()) / (float) next_step_interval_;
   int i = 0;
-  bool finish = false;
   for (auto *step : steps_) {
-    float step_progress = calculate_step_progress(action, full_progress, i, finish);
-    data(*step).push(action.get_operation(), step_progress);
+    float step_progress = calculate_step_progress(action_.get_category(), full_progress, i);
+    float inverted_step_progress = calculate_step_progress(FULL, full_progress, i);
+    auto &data = step->effect_data();
+    float new_data;
+    if (action_.get_operation() == ON) {
+      float min_data = min(data.value, 1 - inverted_step_progress);
+      new_data = max(min_data, step_progress);
+    } else if (action_.get_operation() == OFF) {
+      float max_data = max(data.value, inverted_step_progress);
+      new_data = min(max_data, 1 - step_progress);
+    } else {
+      new_data = NAN;
+    }
+    data.operation = new_data >= data.value ? ON : OFF;
+    data.value = new_data;
     i++;
   }
-  if (finish) {
-    action.finish();
-  }
+
+  apply(steps_, current_color);
+  it.schedule_show();
 }
 
-float StairLightingEffect::calculate_step_progress(const Action &action, float progress, int32_t index,
-                                                   bool &finished) {
-  switch (action.get_category()) {
+float StairLightingEffect::calculate_step_progress(ActionCategory category, float full_progress, int32_t index) {
+  switch (category) {
     case UP:
-      progress -= (float) index;
+      full_progress -= (float) index;
       break;
     case DOWN:
-      progress -= (float) (steps_.size() - index - 1);
+      full_progress -= (float) (steps_.size() - index - 1);
       break;
     default:
       break;
   }
-  progress = progress * ((float) next_step_interval_ / (float) progress_step_interval_);
-  progress = clamp(progress, 0.0f, 1.0f);
-  finished |= is_finished(action, index, progress);
-  return progress;
-}
-
-bool StairLightingEffect::is_finished(const Action &action, int32_t index, float step_progress) {
-  switch (action.get_category()) {
-    case UP:
-      return (index == steps_.size() - 1) && step_progress == 1.0f;
-    case DOWN:
-      return (index == 0) && step_progress == 1.0f;
-    default:
-      return step_progress == 1.0f;
-  }
+  full_progress = full_progress * ((float) next_step_interval_ / (float) progress_step_interval_);
+  full_progress = clamp(full_progress, 0.0f, 1.0f);
+  return full_progress;
 }
 
 }  // namespace stair_lighting
