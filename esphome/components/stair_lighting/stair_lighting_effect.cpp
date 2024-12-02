@@ -1,6 +1,8 @@
 #include "stair_lighting_effect.h"
 #include "stair_lighting.h"
 
+#include "esphome/core/log.h"
+
 static const char *const TAG = "stair_lighting_effect";
 
 namespace esphome {
@@ -50,6 +52,7 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
   }
   if (show(current_color, parent_->get_effect_brightness(), parent_->get_night_brightness())) {
     it.schedule_show();
+    ESP_LOGD(TAG, "schedule");
   }
 }
 
