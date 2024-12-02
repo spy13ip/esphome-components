@@ -14,8 +14,8 @@ AUTO_LOAD = ["binary_sensor"]
 
 CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 CONF_EFFECT_BRIGHTNESS = "effect_brightness"
-CONF_LOWER_SENSOR = "lower_sensor"
-CONF_UPPER_SENSOR = "upper_sensor"
+CONF_LOWER_SENSOR = "sensor_lower"
+CONF_UPPER_SENSOR = "sensor_upper"
 CONF_PASSAGE_TIMEOUT = "passage_timeout"
 CONF_OFF_TIMEOUT = "off_timeout"
 CONF_NIGHT_BRIGHTNESS = "night_brightness"
