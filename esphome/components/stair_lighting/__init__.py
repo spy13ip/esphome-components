@@ -14,12 +14,17 @@ AUTO_LOAD = ["binary_sensor"]
 
 CONF_STAIR_LIGHTING_ID = "stair_lighting_id"
 CONF_EFFECT_BRIGHTNESS = "effect_brightness"
+CONF_LOWER_SENSOR = "lower_sensor"
+CONF_UPPER_SENSOR = "upper_sensor"
 CONF_PASSAGE_TIMEOUT = "passage_timeout"
 CONF_OFF_TIMEOUT = "off_timeout"
 CONF_NIGHT_BRIGHTNESS = "night_brightness"
 CONF_NEXT_STEP_INTERVAL = "next_step_interval"
 CONF_PROGRESS_STEP_INTERVAL = "progress_step_interval"
 CONF_STEPS = "steps"
+
+binary_sensor_ns = cg.esphome_ns.namespace("binary_sensor")
+BinarySensor = binary_sensor_ns.class_("BinarySensor", cg.EntityBase)
 
 stair_lighting_ns = cg.esphome_ns.namespace("stair_lighting")
 # types
@@ -45,6 +50,8 @@ CONFIG_SCHEMA = cv.Schema(
                 }
             )
         ),
+        cv.Required(CONF_LOWER_SENSOR): cv.use_id(BinarySensor),
+        cv.Required(CONF_UPPER_SENSOR): cv.use_id(BinarySensor),
         cv.Optional(CONF_PASSAGE_TIMEOUT, default="5s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_OFF_TIMEOUT, default="20s"): cv.positive_time_period_milliseconds,
         cv.Optional(CONF_EFFECT_BRIGHTNESS, default="100%"): cv.percentage,
@@ -81,6 +88,10 @@ async def to_code(config):
         steps.append(step)
         offset += step_config[CONF_SIZE]
     cg.add(component.set_steps_config(steps))
+    lower_sensor = await cg.get_variable(config[CONF_LOWER_SENSOR])
+    upper_sensor = await cg.get_variable(config[CONF_UPPER_SENSOR])
+    cg.add(component.set_lower_sensor(lower_sensor))
+    cg.add(component.set_upper_sensor(upper_sensor))
     cg.add(component.set_passage_timeout(config[CONF_PASSAGE_TIMEOUT]))
     cg.add(component.set_off_timeout(config[CONF_OFF_TIMEOUT]))
     cg.add(component.set_effect_brightness(config[CONF_EFFECT_BRIGHTNESS]))
