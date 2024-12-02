@@ -1,6 +1,10 @@
 #include "stair_lighting_effect.h"
 #include "stair_lighting.h"
 
+#include "esphome/core/log.h"
+
+static const char *const TAG = "stair_lighting_effect";
+
 namespace esphome {
 namespace stair_lighting {
 
@@ -47,9 +51,12 @@ void StairLightingEffect::apply(AddressableLight &it, const Color &current_color
     data.value = new_data;
     i++;
   }
+  const uint32_t calculate_time = millis() - time;
 
   apply(steps_, current_color);
+  const uint32_t effect_time = millis() - calculate_time;
   it.schedule_show();
+  ESP_LOGD(TAG, "calculate %dms, effect %dms", calculate_time, effect_time);
 }
 
 float StairLightingEffect::calculate_step_progress(ActionCategory category, float full_progress, int32_t index) {
