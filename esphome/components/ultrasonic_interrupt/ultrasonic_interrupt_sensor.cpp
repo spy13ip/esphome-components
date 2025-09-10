@@ -19,7 +19,7 @@ void UltrasonicInterruptSensorComponent::setup() {
 void UltrasonicInterruptSensorComponent::update() {
   // триггерный импульс
   this->trigger_pin_->digital_write(true);
-  delayMicroseconds(this->pulse_time_us_);
+  //delayMicroseconds(this->pulse_time_us_);
   this->trigger_pin_->digital_write(false);
 
   if (this->new_data_) {
