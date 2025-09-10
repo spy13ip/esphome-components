@@ -13,7 +13,7 @@ void UltrasonicInterruptSensorComponent::setup() {
 
   this->echo_pin_->setup();
   this->echo_isr_ = echo_pin_->to_isr();
-  this->echo_pin_->attach_interrupt(gpio_intr, this, gpio::INTERRUPT_ANY_EDGE);
+  this->echo_pin_->attach_interrupt(&UltrasonicInterruptSensorComponent::gpio_intr, this, gpio::INTERRUPT_ANY_EDGE);
 }
 
 void UltrasonicInterruptSensorComponent::update() {
@@ -34,6 +34,16 @@ void UltrasonicInterruptSensorComponent::update() {
       ESP_LOGD(TAG, "'%s' - Got distance: %.3f m", this->name_.c_str(), result);
       this->publish_state(result);
     }
+  }
+}
+
+void IRAM_ATTR UltrasonicInterruptSensorComponent::gpio_intr(UltrasonicInterruptSensorComponent *self) {
+  bool level = self->echo_isr_.digital_read();
+  if (level) {
+    self->pulse_start_ = micros();
+  } else {
+    self->pulse_end_ = micros();
+    self->new_data_ = true;
   }
 }
 

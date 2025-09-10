@@ -25,15 +25,7 @@ class UltrasonicInterruptSensorComponent : public sensor::Sensor, public Polling
   float get_setup_priority() const override { return setup_priority::DATA; }
   void dump_config() override;
 
-  static void IRAM_ATTR gpio_intr(UltrasonicInterruptSensorComponent *self) {
-    bool level = self->echo_isr_.digital_read();
-    if (level) {
-      self->pulse_start_ = micros();
-    } else {
-      self->pulse_end_ = micros();
-      self->new_data_ = true;
-    }
-  }
+  static void gpio_intr(UltrasonicInterruptSensorComponent *self);
 
  protected:
   static float us_to_m(uint32_t us);
