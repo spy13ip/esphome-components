@@ -27,11 +27,11 @@ void UltrasonicInterruptSensorComponent::update() {
 
     uint32_t duration = this->pulse_end_ - this->pulse_start_;
     if (duration >= this->timeout_us_) {
-      //ESP_LOGD(TAG, "'%s' - Distance measurement timed out!", this->name_.c_str());
+      ESP_LOGD(TAG, "'%s' - Distance measurement timed out!", this->name_.c_str());
       this->publish_state(NAN);
     } else {
       float result = us_to_m(duration);
-      //ESP_LOGD(TAG, "'%s' - Got distance: %.3f m", this->name_.c_str(), result);
+      ESP_LOGD(TAG, "'%s' - Got distance: %.3f m", this->name_.c_str(), result);
       this->publish_state(result);
     }
   }
