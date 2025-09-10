@@ -26,7 +26,7 @@ class UltrasonicInterruptSensorComponent : public sensor::Sensor, public Polling
   void dump_config() override;
 
   static void IRAM_ATTR gpio_intr(UltrasonicInterruptSensorComponent *self) {
-    bool level = self->echo_pin_->digital_read();
+    bool level = self->echo_isr_.digital_read();
     if (level) {
       self->pulse_start_ = micros();
     } else {
@@ -40,6 +40,7 @@ class UltrasonicInterruptSensorComponent : public sensor::Sensor, public Polling
 
   GPIOPin *trigger_pin_;
   InternalGPIOPin *echo_pin_;
+  ISRInternalGPIOPin echo_isr_;
   uint32_t pulse_time_us_{};
   uint32_t timeout_us_{};
 

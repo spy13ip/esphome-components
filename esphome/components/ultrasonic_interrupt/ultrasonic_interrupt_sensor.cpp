@@ -12,6 +12,7 @@ void UltrasonicInterruptSensorComponent::setup() {
   this->trigger_pin_->digital_write(false);
 
   this->echo_pin_->setup();
+  this->echo_isr_ = echo_pin_->to_isr();
   this->echo_pin_->attach_interrupt(gpio_intr, this, gpio::INTERRUPT_ANY_EDGE);
 }
 
