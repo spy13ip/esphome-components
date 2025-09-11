@@ -25,7 +25,7 @@ class UltrasonicInterruptSensorComponent : public sensor::Sensor, public Polling
   float get_setup_priority() const override { return setup_priority::DATA; }
   void dump_config() override;
 
-  static void gpio_intr(UltrasonicInterruptSensorComponent *self);
+  static void echo_interrupt(UltrasonicInterruptSensorComponent *self);
 
  protected:
   static float us_to_m(uint32_t us);
@@ -35,6 +35,7 @@ class UltrasonicInterruptSensorComponent : public sensor::Sensor, public Polling
   ISRInternalGPIOPin echo_isr_;
   uint32_t pulse_time_us_{};
   uint32_t timeout_us_{};
+  uint32_t timeout_ms_{};
 
   volatile uint32_t pulse_start_{0};
   volatile uint32_t pulse_end_{0};
