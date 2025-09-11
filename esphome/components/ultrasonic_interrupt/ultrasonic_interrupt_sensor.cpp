@@ -19,22 +19,30 @@ void UltrasonicInterruptSensorComponent::setup() {
 void UltrasonicInterruptSensorComponent::update() {
   // триггерный импульс
   this->trigger_pin_->digital_write(true);
-  //delayMicroseconds(this->pulse_time_us_);
+  delayMicroseconds(this->pulse_time_us_);
   this->trigger_pin_->digital_write(false);
 
-  if (this->new_data_) {
-    this->new_data_ = false;
+  // Таймаут ожидания эха
+  this->set_timeout((this->timeout_us_ + 999) / 1000, [this]() {
+    if (this->new_data_) {
+      // Уже есть измерение → обработать
+      this->new_data_ = false;
 
-    uint32_t duration = this->pulse_end_ - this->pulse_start_;
-    if (duration >= this->timeout_us_) {
-      ESP_LOGD(TAG, "'%s' - Distance measurement timed out!", this->name_.c_str());
-      this->publish_state(NAN);
+      uint32_t duration = this->pulse_end_ - this->pulse_start_;
+      if (duration >= this->timeout_us_) {
+        ESP_LOGD(TAG, "'%s' - Distance measurement timed out!", this->name_.c_str());
+        this->publish_state(NAN);
+      } else {
+        float result = us_to_m(duration);
+        ESP_LOGD(TAG, "'%s' - Got distance: %.3f m", this->name_.c_str(), result);
+        this->publish_state(result);
+      }
     } else {
-      float result = us_to_m(duration);
-      ESP_LOGD(TAG, "'%s' - Got distance: %.3f m", this->name_.c_str(), result);
-      this->publish_state(result);
+      // Данных нет → эхо не пришло
+      ESP_LOGD(TAG, "'%s' - No echo received within timeout!", this->name_.c_str());
+      this->publish_state(NAN);
     }
-  }
+  });
 }
 
 void IRAM_ATTR UltrasonicInterruptSensorComponent::gpio_intr(UltrasonicInterruptSensorComponent *self) {
